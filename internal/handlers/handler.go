@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
 	"github.com/mr-linch/go-tg/tgb/session"
 	"github.com/rs/zerolog"
@@ -20,15 +21,17 @@ type Deps struct {
 	sessionManager *session.Manager[models.Session]
 	AuthService    authService.Service
 	UserService    userService.Service
+	Client         *tg.Client
 }
 
 type Handler struct {
-	logger zerolog.Logger
+	Logger zerolog.Logger
 	*tgb.Router
 	sessionManager *session.Manager[models.Session]
 	StartHandler   *start.StartHandler
 	AdminHandler   *admin.AdminHandler
 	UserHandler    *user.UserHandler
+	Client         *tg.Client
 }
 
 func New(deps Deps) *Handler {
@@ -36,13 +39,15 @@ func New(deps Deps) *Handler {
 	sm := NewSessionManager()
 
 	return &Handler{
-		logger:         botlogger.GetLogger(),
+		Logger:         botlogger.GetLogger(),
 		Router:         tgb.NewRouter(),
 		sessionManager: sm.Manager,
 		StartHandler:   start.NewStartHandler(sm.Manager, deps.AuthService),
 		AdminHandler: admin.NewAdminHandler(
 			sm.Manager,
 			deps.UserService,
+			botlogger.GetLogger(),
+			deps.Client,
 		),
 		UserHandler: user.NewUserHandler(sm.Manager, deps.UserService),
 	}
@@ -70,9 +75,10 @@ func (h *Handler) Init(ctx context.Context) *tgb.Router {
 func (h *Handler) registerStartHandlers() {
 	h.Message(h.StartHandler.Start, tgb.Command("start")).
 		Message(func(ctx context.Context, mu *tgb.MessageUpdate) error {
+			h.Logger.Warn().Msg(mu.Message.Text + " fetched. Unknown endpoint")
 			return mu.Update.Reply(ctx, mu.Answer("Напишите /start"))
 		}, h.isSessionStep(models.SessionStepInit))
-	h.logger.Info().Msg("/start fetched")
+	h.Logger.Info().Msg("bot started")
 }
 
 func (h *Handler) registerAdminHandlers() {

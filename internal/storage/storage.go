@@ -10,6 +10,7 @@ type Storage interface {
 	GetRoleById(ctx context.Context, id tg.UserID) (int, error)
 	GetCompliment(ctx context.Context) (string, error)
 	GetPhoto(ctx context.Context) ([]byte, error)
+	GetAllPhotos(ctx context.Context) ([][]byte, error)
 	InsertPhoto(ctx context.Context, buffer []byte) error
 	InsertThoughts(ctx context.Context, thoughts string) error
 	InsertCompliment(ctx context.Context, compliment string) error

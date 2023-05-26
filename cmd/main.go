@@ -16,5 +16,5 @@ func main() {
 	Config := config.ParseConfig(v)
 	bot := tg.New(Config.Token)
 	Pool := postgresql.GetPool(ctx, Config)
-	logger.Fatal().Err(client.Run(ctx, bot, Config, Pool))
+	logger.Fatal().Err(client.Run(ctx, bot, Pool))
 }

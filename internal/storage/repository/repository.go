@@ -68,6 +68,31 @@ func (s *StorageS) GetPhoto(ctx context.Context) ([]byte, error) {
 	return photos[r.Intn(len(photos))], nil
 }
 
+func (s *StorageS) GetAllPhotos(ctx context.Context) ([][]byte, error) {
+	conn, err := s.dbPool.Acquire(ctx)
+	if err != nil {
+		s.logger.Warn().Err(err).Msg("unable to acquire conn while getphoto")
+		return nil, err
+	}
+	defer conn.Release()
+	q := `SELECT image FROM images`
+	rows, err := conn.Query(ctx, q)
+	if err != nil {
+		s.logger.Warn().Err(err).Msg("unable to parse photo while send q")
+		return nil, err
+	}
+	var photos [][]byte
+	for rows.Next() {
+		var photo []byte
+		err := rows.Scan(&photo)
+		if err != nil {
+			return nil, err
+		}
+		photos = append(photos, photo)
+	}
+	return photos, err
+}
+
 func (s *StorageS) InsertPhoto(ctx context.Context, buffer []byte) error {
 	conn, err := s.dbPool.Acquire(ctx)
 	if err != nil {

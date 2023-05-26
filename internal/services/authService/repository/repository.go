@@ -22,7 +22,7 @@ func (s AuthService) GetRoleById(ctx context.Context, id tg.UserID) (int, error)
 	return role, nil
 }
 
-func InitNewAuthService(ctx context.Context, s storage.Storage) authService.Service {
+func InitNewAuthService(s storage.Storage) authService.Service {
 	return &AuthService{
 		logger:  botlogger.GetLogger(),
 		storage: s,
