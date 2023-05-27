@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"github.com/rs/zerolog"
+	"strconv"
 	"tacy/internal/services/userService"
 	"tacy/internal/storage"
 	"tacy/pkg/botlogger"
@@ -22,9 +23,13 @@ func (s Service) InputPhotoFromAdmin(ctx context.Context, photo []byte) error {
 	return nil
 }
 
-func (s Service) InputComplimentFromAdmin(ctx context.Context) {
-	//TODO implement me
-	panic("implement me")
+func (s Service) InputComplimentFromAdmin(ctx context.Context, compliment string) error {
+	err := s.Storage.InsertCompliment(ctx, compliment)
+	if err != nil {
+		s.Logger.Warn().Err(err)
+		return err
+	}
+	return nil
 }
 
 func (s Service) InputThoughtsFromUser(ctx context.Context) {
@@ -32,7 +37,7 @@ func (s Service) InputThoughtsFromUser(ctx context.Context) {
 	panic("implement me")
 }
 
-func (s Service) OutputComplimentAndPhotoRandom(ctx context.Context) {
+func (s Service) OutputComplimentAndPhotoByRandom(ctx context.Context) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -46,9 +51,17 @@ func (s Service) OutputAllPhotos(ctx context.Context) ([][]byte, error) {
 	return photos, nil
 }
 
-func (s Service) OutputAllCompliments(ctx context.Context) {
-	//TODO implement me
-	panic("implement me")
+func (s Service) OutputAllCompliments(ctx context.Context) ([]string, error) {
+	compliments, err := s.Storage.GetAllCompliments(ctx)
+	if err != nil {
+		s.Logger.Warn().Err(err)
+		return nil, err
+	}
+	var resCompliments []string
+	for _, compliment := range compliments {
+		resCompliments = append(resCompliments, strconv.Itoa(compliment.Id)+". "+compliment.Compliment)
+	}
+	return resCompliments, nil
 }
 
 func InitNewUserService(s storage.Storage) userService.Service {

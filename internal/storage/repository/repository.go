@@ -93,6 +93,31 @@ func (s *StorageS) GetAllPhotos(ctx context.Context) ([][]byte, error) {
 	return photos, err
 }
 
+func (s *StorageS) GetAllCompliments(ctx context.Context) ([]storage.Compliment, error) {
+	conn, err := s.dbPool.Acquire(ctx)
+	if err != nil {
+		s.logger.Warn().Err(err).Msg("unable to acquire conn while getallcompliments")
+		return nil, err
+	}
+	defer conn.Release()
+	q := `SELECT * FROM compliments`
+	rows, err := conn.Query(ctx, q)
+	if err != nil {
+		s.logger.Warn().Err(err).Msg("unable to parse photo while send q")
+		return nil, err
+	}
+	var compliments []storage.Compliment
+	for rows.Next() {
+		var compliment storage.Compliment
+		err := rows.Scan(&compliment.Id, &compliment.Compliment)
+		if err != nil {
+			return nil, err
+		}
+		compliments = append(compliments, compliment)
+	}
+	return compliments, err
+}
+
 func (s *StorageS) InsertPhoto(ctx context.Context, buffer []byte) error {
 	conn, err := s.dbPool.Acquire(ctx)
 	if err != nil {

@@ -78,7 +78,7 @@ func (h *AdminHandler) AdminMenuHandler(ctx context.Context, msg *tgb.MessageUpd
 			ReplyMarkup(kb))
 
 	case models.AdminMenu.GetAllCompliments:
-		return h.AdminMenuGetAllPhotosHandler(ctx, msg)
+		return h.AdminMenuGetAllComplimentsHandler(ctx, msg)
 
 	case models.AdminMenu.GetAllPhotos:
 		return h.AdminMenuGetAllPhotosHandler(ctx, msg)
@@ -122,7 +122,7 @@ func (h *AdminHandler) AdminMenuInsertPhotoHandler(ctx context.Context, msg *tgb
 			log.Warn().Err(err).Msg("Photo not added to db.")
 			return msg.Update.Reply(ctx, msg.Answer("Извините, фото не было добавлено, попробуйте снова"))
 		}
-		log.Info().Msg("Photo added.")
+		h.logger.Info().Msg("Photo added.")
 		return msg.Update.Reply(ctx, msg.Answer("Фото успешно добавлено."))
 	}
 	switch msg.Text {
@@ -142,8 +142,13 @@ func (h *AdminHandler) AdminMenuInsertNewComplimentHandler(ctx context.Context, 
 		h.sessionManager.Get(ctx).Step = models.SessionStepEnterAdminMenuHandler
 		return h.AdminStartMenuHandler(ctx, msg)
 	default:
-		h.sessionManager.Get(ctx).Step = models.SessionStepInit
-		return msg.Answer("Напишите /start").ReplyMarkup(tg.NewReplyKeyboardRemove()).DoVoid(ctx)
+		err := h.UserService.InputComplimentFromAdmin(ctx, msg.Text)
+		if err != nil {
+			h.sessionManager.Get(ctx).Step = models.SessionStepInit
+			return msg.Answer("Не получилось добавить комплимент. Напишите /start").ReplyMarkup(tg.NewReplyKeyboardRemove()).
+				DoVoid(ctx)
+		}
+		return msg.Answer("Комплимент добавлен!)").DoVoid(ctx)
 	}
 }
 
@@ -176,6 +181,21 @@ func (h *AdminHandler) AdminMenuGetAllPhotosHandler(ctx context.Context, msg *tg
 }
 
 func (h *AdminHandler) AdminMenuGetAllComplimentsHandler(ctx context.Context, msg *tgb.MessageUpdate) error {
+	compliments, err := h.UserService.OutputAllCompliments(ctx)
+	if err != nil {
+		h.logger.Warn().Err(err).Msg("Unable to get compliments.")
+		return msg.Update.Reply(ctx, msg.Answer("Unable to get compliments."))
+	}
+	for _, compliment := range compliments {
+		err = msg.Answer(compliment).DoVoid(ctx)
+		if err != nil {
+			h.logger.Warn().Err(err).Msg("Unable to send compliment.")
+			return msg.Update.Reply(ctx, msg.Answer("Unable to set compliment."))
+		}
+	}
+	if err == nil {
+		return msg.Answer("Все!").DoVoid(ctx)
+	}
 	switch msg.Text {
 	case models.AdminStartMenu.AdminEnter:
 		h.sessionManager.Get(ctx).Step = models.SessionStepEnterAdminMenuHandler
