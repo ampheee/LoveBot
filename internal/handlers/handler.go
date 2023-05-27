@@ -87,11 +87,12 @@ func (h *Handler) registerAdminHandlers() {
 		Message(h.AdminHandler.AdminMenuInsertPhotoHandler, h.isSessionStep(models.SessionStepInsertNewPhotoMenuHandler)).
 		Message(h.AdminHandler.AdminMenuInsertNewComplimentHandler, h.isSessionStep(models.SessionStepInsertNewComplimentMenuHandler)).
 		Message(h.AdminHandler.AdminMenuGetAllPhotosHandler, h.isSessionStep(models.SessionStepGetAllPhotosMenuHandler)).
-		Message(h.AdminHandler.AdminMenuGetAllComplimentsHandler, h.isSessionStep(models.SessionStepGetAllComplimentsHandler))
+		Message(h.AdminHandler.AdminMenuGetAllComplimentsHandler, h.isSessionStep(models.SessionStepGetAllComplimentsHandler)).
+		Message(h.AdminHandler.AdminGetComplimentByRandomHandler, h.isSessionStep(models.SessionStepGetCompliment))
 }
 
 func (h *Handler) registerUserHandler() {
 	h.Message(h.UserHandler.UserStartMenuSelectionHandler, h.isSessionStep(models.SessionStepUserMenuHandler)).
-		Message(h.UserHandler.UserStartMenuSelectionHandler, h.isSessionStep(models.SessionStepInsertSomeThoughts)).
-		Message(h.UserHandler.UserStartMenuSelectionHandler, h.isSessionStep(models.SessionStepGetCompliment))
+		Message(h.UserHandler.UserInputSomeThoughts, h.isSessionStep(models.SessionStepInsertSomeThoughts)).
+		Message(h.UserHandler.UserGetComplimentByRandomHandler, h.isSessionStep(models.SessionStepGetCompliment))
 }

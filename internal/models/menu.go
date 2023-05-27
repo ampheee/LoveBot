@@ -9,9 +9,11 @@ var AdminStartMenu = struct {
 var UserStartMenu = struct {
 	InsertSomeThoughts string
 	GetComplimentNow   string
+	Back               string
 }{
-	InsertSomeThoughts: "Поделиться мыслями",
-	GetComplimentNow:   "Получить факт",
+	InsertSomeThoughts: "Поделиться мыслями 😳",
+	GetComplimentNow:   "Получить факт 😋",
+	Back:               "Вернуться назад ❤️‍🩹",
 }
 
 var AdminMenu = struct {
@@ -19,6 +21,7 @@ var AdminMenu = struct {
 	InsertNewCompliment string
 	GetAllCompliments   string
 	GetAllPhotos        string
+	GetComplimentNow    string
 	Back                string
 }{
 	InsertNewPhoto:      "Добавить новое фото",

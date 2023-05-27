@@ -17,7 +17,7 @@ type AuthService struct {
 func (s AuthService) GetRoleById(ctx context.Context, id tg.UserID) (int, error) {
 	role, err := s.storage.GetRoleById(ctx, id)
 	if err != nil {
-		return 2, err
+		return 3, err
 	}
 	return role, nil
 }

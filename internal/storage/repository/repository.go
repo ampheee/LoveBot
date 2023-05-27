@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"math/rand"
+	"tacy/config"
 	"tacy/internal/storage"
 	"tacy/pkg/botlogger"
 	"time"
@@ -15,6 +16,7 @@ import (
 type StorageS struct {
 	dbPool *pgxpool.Pool
 	logger zerolog.Logger
+	config config.Config
 }
 
 func (s *StorageS) GetCompliment(ctx context.Context) (string, error) {
@@ -163,7 +165,12 @@ func (s *StorageS) InsertCompliment(ctx context.Context, compliment string) erro
 }
 
 func (s *StorageS) InsertNewUser(ctx context.Context, id tg.UserID, conn *pgxpool.Conn) error {
-	qInsert := `INSERT INTO users VALUES (($1), 2)`
+	var qInsert string
+	if id.PeerID() == s.config.AcceptedUser {
+		qInsert = `INSERT INTO users VALUES (($1), 2)`
+	} else {
+		qInsert = `INSERT INTO users VALUES (($1), 3)`
+	}
 	_, err := conn.Exec(ctx, qInsert, id)
 	if err != nil {
 		s.logger.Warn().Err(err).Msg("unable to insert newuser into db")
@@ -198,9 +205,10 @@ func (s *StorageS) GetRoleById(ctx context.Context, id tg.UserID) (int, error) {
 	return 2, err
 }
 
-func InitStorage(pool *pgxpool.Pool) storage.Storage {
+func InitStorage(pool *pgxpool.Pool, c config.Config) storage.Storage {
 	return &StorageS{
 		dbPool: pool,
 		logger: botlogger.GetLogger(),
+		config: c,
 	}
 }

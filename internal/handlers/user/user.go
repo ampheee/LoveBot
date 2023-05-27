@@ -29,19 +29,18 @@ func NewUserHandler(
 }
 
 func (h *UserHandler) UserStartMenuSelectionHandler(ctx context.Context, msg *tgb.MessageUpdate) error {
+	h.Logger.Info().Msg(msg.Text + " fetched.")
 	switch msg.Text {
 	case models.UserStartMenu.GetComplimentNow:
-		h.sessionManager.Get(ctx).Step = models.SessionStepGetCompliment
 		return h.UserGetComplimentByRandomHandler(ctx, msg)
 	case models.UserStartMenu.InsertSomeThoughts:
 		h.sessionManager.Get(ctx).Step = models.SessionStepInsertSomeThoughts
-		msg.Answer("Оставь тут все, что хочешь, я обязательно это прочту \U0001F979💛").ReplyMarkup(
+		return msg.Answer("Оставь тут все, что хочешь, я обязательно это прочту \U0001F979💛").ReplyMarkup(
 			tg.NewReplyKeyboardMarkup(
 				tg.NewButtonColumn(
 					tg.NewKeyboardButton("Вернуться назад ❤️‍🩹"),
 				)...,
-			).WithResizeKeyboardMarkup())
-		return h.UserInputSomeThoughts(ctx, msg)
+			).WithResizeKeyboardMarkup()).DoVoid(ctx)
 	default:
 		h.sessionManager.Get(ctx).Step = models.SessionStepInit
 		return msg.Answer("Что-то сломалось 😢\nНапиши /start").ReplyMarkup(tg.NewReplyKeyboardRemove()).DoVoid(ctx)
@@ -49,6 +48,7 @@ func (h *UserHandler) UserStartMenuSelectionHandler(ctx context.Context, msg *tg
 }
 
 func (h *UserHandler) UserGetComplimentByRandomHandler(ctx context.Context, msg *tgb.MessageUpdate) error {
+	h.Logger.Info().Msg(msg.Text + " fetched.")
 	photo, compliment, err := h.UserService.OutputComplimentAndPhotoByRandom(ctx)
 	if err != nil {
 		h.Logger.Warn().Err(err)
@@ -69,6 +69,22 @@ func (h *UserHandler) UserGetComplimentByRandomHandler(ctx context.Context, msg 
 }
 
 func (h *UserHandler) UserInputSomeThoughts(ctx context.Context, msg *tgb.MessageUpdate) error {
-
-	return msg.Answer("Спасибо, солнышко, это важно для меня 💛").DoVoid(ctx)
+	h.Logger.Info().Msg(msg.Text + " fetched.")
+	switch msg.Text {
+	case models.UserStartMenu.Back:
+		h.sessionManager.Get(ctx).Step = models.SessionStepUserMenuHandler
+		return h.UserStartMenuSelectionHandler(ctx, msg)
+	default:
+		err := h.UserService.InputThoughtsFromUser(ctx, msg.Text)
+		if err != nil {
+			return msg.Answer("Что-то пошло не так @\nЯ решу эту проблему, " +
+				"но не забывай, что личные сообщения никто не отменял").DoVoid(ctx)
+		}
+		return msg.Answer("Спасибо, солнышко, это важно для меня 💛").ReplyMarkup(tg.NewReplyKeyboardMarkup(
+			tg.NewButtonColumn(
+				tg.NewKeyboardButton(models.UserStartMenu.GetComplimentNow),
+				tg.NewKeyboardButton(models.UserStartMenu.InsertSomeThoughts),
+			)...,
+		).WithResizeKeyboardMarkup()).DoVoid(ctx)
+	}
 }

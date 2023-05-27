@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/rs/zerolog"
 	"strconv"
 	"tacy/internal/services/userService"
@@ -32,14 +33,22 @@ func (s Service) InputComplimentFromAdmin(ctx context.Context, compliment string
 	return nil
 }
 
-func (s Service) InputThoughtsFromUser(ctx context.Context) {
-	//TODO implement me
-	panic("implement me")
+func (s Service) InputThoughtsFromUser(ctx context.Context, thoughts string) error {
+	err := s.Storage.InsertThoughts(ctx, thoughts)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (s Service) OutputComplimentAndPhotoByRandom(ctx context.Context) {
-	//TODO implement me
-	panic("implement me")
+func (s Service) OutputComplimentAndPhotoByRandom(ctx context.Context) (photo []byte, compliment string, err error) {
+	photo, errPhoto := s.Storage.GetPhoto(ctx)
+	compliment, errCompliment := s.Storage.GetCompliment(ctx)
+	err = errors.Join(errPhoto, errCompliment)
+	if err != nil {
+		return nil, "", err
+	}
+	return photo, compliment, nil
 }
 
 func (s Service) OutputAllPhotos(ctx context.Context) ([][]byte, error) {

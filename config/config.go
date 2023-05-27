@@ -16,6 +16,7 @@ type Config struct {
 		SSLMode string
 		MaxConn string
 	}
+	AcceptedUser string
 }
 
 func LoadConfig() *viper.Viper {

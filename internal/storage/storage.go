@@ -8,8 +8,8 @@ import (
 
 type Storage interface {
 	GetRoleById(ctx context.Context, id tg.UserID) (int, error)
-	GetComplimentById(ctx context.Context) (string, error)
-	GetPhotoById(ctx context.Context) ([]byte, error)
+	GetCompliment(ctx context.Context) (string, error)
+	GetPhoto(ctx context.Context) ([]byte, error)
 	GetAllPhotos(ctx context.Context) ([][]byte, error)
 	GetAllCompliments(ctx context.Context) ([]Compliment, error)
 	InsertPhoto(ctx context.Context, buffer []byte) error
