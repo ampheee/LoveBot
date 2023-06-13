@@ -20,7 +20,7 @@ import (
 type Deps struct {
 	sessionManager *session.Manager[models.Session]
 	AuthService    authService.Service
-	UserService    userService.Service
+	UserService    userService.USUsecase
 	Client         *tg.Client
 }
 
@@ -35,9 +35,7 @@ type Handler struct {
 }
 
 func New(deps Deps) *Handler {
-
 	sm := NewSessionManager()
-
 	return &Handler{
 		Logger:         botlogger.GetLogger(),
 		Router:         tgb.NewRouter(),

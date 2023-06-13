@@ -15,14 +15,14 @@ import (
 
 type AdminHandler struct {
 	sessionManager *session.Manager[models.Session]
-	UserService    userService.Service
+	UserService    userService.USUsecase
 	Logger         zerolog.Logger
 	Client         *tg.Client
 }
 
 func NewAdminHandler(
 	sm *session.Manager[models.Session],
-	UserService userService.Service,
+	UserService userService.USUsecase,
 	logger zerolog.Logger,
 	client *tg.Client,
 ) *AdminHandler {
@@ -118,7 +118,7 @@ func (h *AdminHandler) AdminMenuInsertPhotoHandler(ctx context.Context, msg *tgb
 			h.Logger.Warn().Err(err)
 			return msg.Update.Reply(ctx, msg.Answer("Извините, фото не было добавлено, попробуйте снова."))
 		}
-		err = h.UserService.InputPhotoFromAdmin(ctx, bytes)
+		err = h.UserService.InsertPhotoFromAdmin(ctx, bytes)
 		if err != nil {
 			log.Warn().Err(err).Msg("Photo not added to db.")
 			return msg.Update.Reply(ctx, msg.Answer("Извините, фото не было добавлено, попробуйте снова"))
@@ -143,7 +143,7 @@ func (h *AdminHandler) AdminMenuInsertNewComplimentHandler(ctx context.Context, 
 		h.sessionManager.Get(ctx).Step = models.SessionStepEnterAdminMenuHandler
 		return h.AdminStartMenuHandler(ctx, msg)
 	default:
-		err := h.UserService.InputComplimentFromAdmin(ctx, msg.Text)
+		err := h.UserService.InsertComplimentFromAdmin(ctx, msg.Text)
 		if err != nil {
 			h.sessionManager.Get(ctx).Step = models.SessionStepInit
 			return msg.Answer("Не получилось добавить комплимент. Напишите /start").ReplyMarkup(tg.NewReplyKeyboardRemove()).

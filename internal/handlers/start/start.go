@@ -24,8 +24,6 @@ func (s *StartHandler) Start(ctx context.Context, msg *tgb.MessageUpdate) error 
 	role, err := s.AuthService.GetRoleById(ctx, msg.Update.Message.From.ID)
 	if err != nil || role == 0 {
 		return msg.Answer("Непредвиденная ошибка на стороне хоста.").DoVoid(ctx)
-	} else if role == 3 {
-		return msg.Answer("Неизвестный пользователь. Бот доступен только 2-м людям ☺️").DoVoid(ctx)
 	}
 	switch role {
 	case models.AdminRole:
@@ -36,7 +34,6 @@ func (s *StartHandler) Start(ctx context.Context, msg *tgb.MessageUpdate) error 
 			DoVoid(ctx)
 	case models.UserRole:
 		s.sessionManager.Get(ctx).Step = models.SessionStepUserMenuHandler
-
 		return msg.Answer("Привет, Тась :)\nИногда я не успеваю напоминать тебе о том, " +
 			"насколько ты молодец и подмечать то, как ты стараешься 😢\nИ дабы исправить это, я решил написать вот такого" +
 			" простенького телеграм-бота, который каждые 6-часов будет отправлять тебе\nнебольшие факты и слова поддержки ❤️‍🩹" +
@@ -44,6 +41,7 @@ func (s *StartHandler) Start(ctx context.Context, msg *tgb.MessageUpdate) error 
 			" постараюсь починить его в скорейшие сроки🛠\nНу а теперь - скорее выбирай действие, потыкай все кнопочки!! 🔆").
 			ReplyMarkup(buildUserStartMenu()).
 			DoVoid(ctx)
+
 	default:
 		return nil
 	}

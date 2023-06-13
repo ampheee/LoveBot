@@ -25,6 +25,7 @@ type USUsecase interface {
 	OutputComplimentAndPhotoByRandom(ctx context.Context) ([]byte, string, error)
 	OutputAllPhotos(ctx context.Context) ([][]byte, error)
 	OutputAllCompliments(ctx context.Context) ([]string, error)
+	OutputhAllThoughts(ctx context.Context) ([]string, error)
 }
 
 type Compliment struct {

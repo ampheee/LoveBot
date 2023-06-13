@@ -11,16 +11,15 @@ import (
 	repository2 "tacy/internal/services/authService/repository"
 	"tacy/internal/services/userService"
 	repository3 "tacy/internal/services/userService/repository"
-	"tacy/internal/storage/repository"
+	"tacy/internal/services/userService/usecase"
 	"tacy/pkg/botlogger"
 	"time"
 )
 
 func Run(ctx context.Context, client *tg.Client, pool *pgxpool.Pool, c config.Config) error {
 	logger := botlogger.GetLogger()
-	storage := repository.InitStorage(pool, c)
-	auth := repository2.InitNewAuthService(storage)
-	user := repository3.InitNewUserService(storage)
+	auth := repository2.NewAuthUsecase(pool)
+	user := usecase.NewUSUsecase(repository3.NewUSRepo(pool))
 	//ticker := time.NewTicker(6 * time.Hour)
 	//go Sender(ctx, ticker, user, client, c)
 	handlers := handlers.New(handlers.Deps{
@@ -36,7 +35,7 @@ func Run(ctx context.Context, client *tg.Client, pool *pgxpool.Pool, c config.Co
 	return tgb.NewPoller(router, client).Run(ctx)
 }
 
-func Sender(ctx context.Context, ticker *time.Ticker, user userService.Service, client *tg.Client,
+func Sender(ctx context.Context, ticker *time.Ticker, user userService.USUsecase, client *tg.Client,
 	config config.Config) {
 	logger := botlogger.GetLogger()
 	for range ticker.C {
