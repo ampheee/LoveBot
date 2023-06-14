@@ -47,7 +47,12 @@ func New(deps Deps) *Handler {
 			botlogger.GetLogger(),
 			deps.Client,
 		),
-		UserHandler: user.NewUserHandler(sm.Manager, deps.UserService),
+		UserHandler: user.NewUserHandler(
+			sm.Manager,
+			deps.UserService,
+			botlogger.GetLogger(),
+			deps.Client,
+		),
 	}
 }
 

@@ -9,7 +9,7 @@ type USRepository interface {
 	GetPhotoByRandom(ctx context.Context) (Photo, error)
 	GetAllPhotos(ctx context.Context) ([]Photo, error)
 	GetAllCompliments(ctx context.Context) ([]Compliment, error)
-	InsertPhotoFromAdmin(ctx context.Context, buffer []byte) error
+	InsertPhoto(ctx context.Context, photo []byte, fromUser bool) error
 	InsertThoughtsFromUser(ctx context.Context, thoughts string) error
 	InsertComplimentFromAdmin(ctx context.Context, compliment string) error
 	UpdateComplimentById(ctx context.Context, id int) error
@@ -19,7 +19,7 @@ type USRepository interface {
 }
 
 type USUsecase interface {
-	InsertPhotoFromAdmin(ctx context.Context, photo []byte) error
+	InsertPhoto(ctx context.Context, photo []byte, fromUser bool) error
 	InsertComplimentFromAdmin(ctx context.Context, compliment string) error
 	InputThoughtsFromUser(ctx context.Context, thoughts string) error
 	OutputComplimentAndPhotoByRandom(ctx context.Context) ([]byte, string, error)

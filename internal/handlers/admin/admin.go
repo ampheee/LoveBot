@@ -118,7 +118,7 @@ func (h *AdminHandler) AdminMenuInsertPhotoHandler(ctx context.Context, msg *tgb
 			h.Logger.Warn().Err(err)
 			return msg.Update.Reply(ctx, msg.Answer("Извините, фото не было добавлено, попробуйте снова."))
 		}
-		err = h.UserService.InsertPhotoFromAdmin(ctx, bytes)
+		err = h.UserService.InsertPhoto(ctx, bytes, false)
 		if err != nil {
 			log.Warn().Err(err).Msg("Photo not added to db.")
 			return msg.Update.Reply(ctx, msg.Answer("Извините, фото не было добавлено, попробуйте снова"))

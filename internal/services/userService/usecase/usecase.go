@@ -18,16 +18,16 @@ func (u *Usecase) OutputhAllThoughts(ctx context.Context) ([]string, error) {
 	panic("implement me")
 }
 
-func (u *Usecase) InsertPhotoFromAdmin(ctx context.Context, photo []byte) error {
-	return u.Repo.InsertPhotoFromAdmin(ctx, photo)
+func (u *Usecase) InsertPhoto(ctx context.Context, msg []byte, fromUser bool) error {
+	return u.Repo.InsertPhoto(ctx, msg, fromUser)
 }
 
 func (u *Usecase) InsertComplimentFromAdmin(ctx context.Context, compliment string) error {
 	return u.InsertComplimentFromAdmin(ctx, compliment)
 }
 
-func (u *Usecase) InputThoughtsFromUser(ctx context.Context, thoughts string) error {
-	return u.Repo.InsertThoughtsFromUser(ctx, thoughts)
+func (u *Usecase) InputThoughtsFromUser(ctx context.Context, thougth string) error {
+	return u.Repo.InsertThoughtsFromUser(ctx, thougth)
 }
 
 func (u *Usecase) OutputComplimentAndPhotoByRandom(ctx context.Context) ([]byte, string, error) {
