@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/rs/zerolog"
 	"tacy/internal/services/userService"
@@ -34,10 +33,12 @@ func (u *Usecase) InputThoughtsFromUser(ctx context.Context, thoughts string) er
 func (u *Usecase) OutputComplimentAndPhotoByRandom(ctx context.Context) ([]byte, string, error) {
 	reservedPhoto, errPhoto := u.Repo.GetPhotoByRandom(ctx)
 	reservedCompliment, errCompliment := u.Repo.GetComplimentByRandom(ctx)
-	err := errors.Join(errPhoto, errCompliment)
-	if err != nil {
-		u.logger.Warn().Err(err).Msg("something went wrong while get compliment")
-		return nil, "", err
+	if errCompliment != nil {
+		u.logger.Warn().Err(errCompliment).Msg("something went wrong while get compliment")
+		return nil, "", errCompliment
+	} else if errPhoto != nil {
+		u.logger.Warn().Err(errPhoto).Msg("something went wrong while get photo")
+		return nil, "", errPhoto
 	}
 	return reservedPhoto.Photo, reservedCompliment, nil
 }

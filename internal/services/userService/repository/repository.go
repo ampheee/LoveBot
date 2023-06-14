@@ -116,8 +116,9 @@ func (r *Repository) GetPhotoByRandom(ctx context.Context) (userService.Photo, e
 	}
 	defer conn.Release()
 	qFalseTotal := `select count(id) from images where seen = false`
-	total, err := conn.Query(ctx, qFalseTotal)
+	total := conn.QueryRow(ctx, qFalseTotal)
 	if err != nil {
+		r.logger.Warn().Err(err)
 		return userService.Photo{}, err
 	}
 	var max int
@@ -125,6 +126,7 @@ func (r *Repository) GetPhotoByRandom(ctx context.Context) (userService.Photo, e
 	if err != nil {
 	}
 	if max == 0 {
+		r.logger.Warn().Err(err)
 		err = r.RefreshImages(ctx)
 	}
 	q := `SELECT id, image FROM images where seen = false ORDER BY RANDOM() LIMIT 1`
@@ -132,9 +134,11 @@ func (r *Repository) GetPhotoByRandom(ctx context.Context) (userService.Photo, e
 	var photo userService.Photo
 	err = row.Scan(&photo.Id, &photo.Photo)
 	if err != nil {
+		r.logger.Warn().Err(err)
 	}
 	err = r.UpdateImageById(ctx, photo.Id)
-	return photo, nil
+	r.logger.Warn().Err(err)
+	return photo, err
 }
 
 func (r *Repository) GetComplimentByRandom(ctx context.Context) (string, error) {
@@ -144,28 +148,29 @@ func (r *Repository) GetComplimentByRandom(ctx context.Context) (string, error) 
 		return "", err
 	}
 	defer conn.Release()
-	qFalseTotal := `select count(id) from compliments where seen = false`
-	total, err := conn.Query(ctx, qFalseTotal)
-	if err != nil {
-		return "", err
-	}
+	qFalseTotal := "select count(*) from compliments where seen = false"
+	total := conn.QueryRow(ctx, qFalseTotal)
 	var max int
 	err = total.Scan(&max)
 	if err != nil {
+		r.logger.Warn().Err(err)
 		return "", err
 	}
 	if max == 0 {
 		err = r.RefreshCompliments(ctx)
 	}
 	q := `SELECT id, compliment FROM compliments where seen = false ORDER BY RANDOM() LIMIT 1`
-	row := conn.QueryRow(ctx, q)
 	var compliment userService.Compliment
-	err = row.Scan(&compliment.Id, &compliment.Compliment)
+	conn.QueryRow(ctx, q).Scan(&compliment.Id, &compliment.Compliment)
 	if err != nil {
+		r.logger.Warn().Err(err)
 		return "", err
 	}
 	err = r.UpdateComplimentById(ctx, compliment.Id)
-	return compliment.Compliment, nil
+	if err != nil {
+		r.logger.Warn().Err(err)
+	}
+	return compliment.Compliment, err
 }
 
 func (r *Repository) UpdateComplimentById(ctx context.Context, id int) error {
