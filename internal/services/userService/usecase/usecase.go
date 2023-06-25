@@ -23,7 +23,7 @@ func (u *Usecase) InsertPhoto(ctx context.Context, msg []byte, fromUser bool) er
 }
 
 func (u *Usecase) InsertComplimentFromAdmin(ctx context.Context, compliment string) error {
-	return u.InsertComplimentFromAdmin(ctx, compliment)
+	return u.Repo.InsertComplimentFromAdmin(ctx, compliment)
 }
 
 func (u *Usecase) InputThoughtsFromUser(ctx context.Context, thougth string) error {

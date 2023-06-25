@@ -65,7 +65,7 @@ func (r *Repository) GetAllCompliments(ctx context.Context) ([]userService.Compl
 		return nil, err
 	}
 	defer conn.Release()
-	q := `SELECT * FROM compliments`
+	q := `SELECT id, compliment FROM compliments`
 	rows, err := conn.Query(ctx, q)
 	if err != nil {
 		r.logger.Warn().Err(err).Msg("unable to parse photo while send q")
@@ -91,7 +91,7 @@ func (r *Repository) GetAllPhotos(ctx context.Context) ([]userService.Photo, err
 		return nil, err
 	}
 	defer conn.Release()
-	q := `SELECT (id, image) FROM images`
+	q := `SELECT id, image FROM images`
 	rows, err := conn.Query(ctx, q)
 	if err != nil {
 		r.logger.Warn().Err(err).Msg("unable to parse photo while send q")
@@ -117,7 +117,7 @@ func (r *Repository) GetAllUsersPhotos(ctx context.Context) ([]userService.Photo
 		return nil, err
 	}
 	defer conn.Release()
-	q := `SELECT (id, image) FROM images where seen = false`
+	q := `SELECT id, image FROM images where seen = false`
 	rows, err := conn.Query(ctx, q)
 	if err != nil {
 		r.logger.Warn().Err(err).Msg("unable to parse photo while send q")

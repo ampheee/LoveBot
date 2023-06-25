@@ -4,31 +4,35 @@ import (
 	"context"
 	"github.com/mr-linch/go-tg/tgb"
 	"github.com/mr-linch/go-tg/tgb/session"
+	"github.com/rs/zerolog"
+	"strconv"
 	"tacy/internal/models"
 	"tacy/internal/services/authService"
+	"tacy/pkg/botlogger"
 )
 
 type StartHandler struct {
 	sessionManager *session.Manager[models.Session]
-
-	AuthService authService.Service
+	logger         zerolog.Logger
+	AuthService    authService.Service
 }
 
 func NewStartHandler(sm *session.Manager[models.Session], s authService.Service) *StartHandler {
 	return &StartHandler{
-		sessionManager: sm, AuthService: s,
+		sessionManager: sm, AuthService: s, logger: botlogger.GetLogger(),
 	}
 }
 
 func (s *StartHandler) Start(ctx context.Context, msg *tgb.MessageUpdate) error {
 	role, err := s.AuthService.GetRoleById(ctx, msg.Update.Message.From.ID)
 	if err != nil || role == 0 {
+		s.logger.Warn().Err(err)
+		s.logger.Info().Msg("role is " + strconv.Itoa(role))
 		return msg.Answer("Непредвиденная ошибка на стороне хоста.").DoVoid(ctx)
 	}
 	switch role {
 	case models.AdminRole:
 		s.sessionManager.Get(ctx).Step = models.SessionStepAdminMenuHandler
-
 		return msg.Answer("Пожалуйста, выберите действие").
 			ReplyMarkup(buildAdminStartMenu()).
 			DoVoid(ctx)
@@ -41,8 +45,7 @@ func (s *StartHandler) Start(ctx context.Context, msg *tgb.MessageUpdate) error 
 			" постараюсь починить его в скорейшие сроки🛠\nНу а теперь - скорее выбирай действие, потыкай все кнопочки!! 🔆").
 			ReplyMarkup(buildUserStartMenu()).
 			DoVoid(ctx)
-
 	default:
-		return nil
+		return msg.Answer("Вы кто такие ? Мы вас не знаем, до свидания 😒").DoVoid(ctx)
 	}
 }

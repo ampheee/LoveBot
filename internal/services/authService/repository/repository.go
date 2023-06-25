@@ -39,9 +39,11 @@ func (r *Repository) GetRoleById(ctx context.Context, id tg.UserID) (int, error)
 		}
 	} else {
 		err = r.InsertNewUser(ctx, id, conn)
-	}
-	if err != nil {
-		return 3, err
+		if err != nil {
+			r.logger.Warn().Err(err)
+			return 0, err
+		}
+		return 3, nil
 	}
 	return role, nil
 }
