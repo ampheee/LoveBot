@@ -1,0 +1,11 @@
+[Unit]
+Description=LoveBotService
+
+[Service]
+Type=simple
+DynamicUser=yes
+WorkingDirectory=/home/bot/cmd/
+ExecStart=/home/bot/cmd/main
+Restart=always
+
+[Install]

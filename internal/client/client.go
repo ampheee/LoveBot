@@ -20,8 +20,8 @@ func Run(ctx context.Context, client *tg.Client, pool *pgxpool.Pool, c config.Co
 	logger := botlogger.GetLogger()
 	auth := repository2.NewAuthUsecase(pool)
 	user := usecase.NewUSUsecase(repository3.NewUSRepo(pool))
-	//ticker := time.NewTicker(6 * time.Hour)
-	//go Sender(ctx, ticker, user, client, c)
+	ticker := time.NewTicker(6 * time.Hour)
+	go Sender(ctx, ticker, user, client, c)
 	handlers := handlers.New(handlers.Deps{
 		AuthService: auth,
 		UserService: user,
